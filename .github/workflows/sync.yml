@@ -1,0 +1,21 @@
+name: Sync to Hugging Face Hub
+on:
+  push:
+    branches: [main] # Spustí sa pri každom pushi do vetvy main
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          lfs: true # Dôležité, ak máš veľké súbory
+
+      - name: Push to Hub
+        uses: huggingface/hub-sync@v1.0
+        with:
+          github_repo_id: ${{ github.repository }}
+          huggingface_repo_id: dkajan9/crackwatch
+          hf_token: ${{ secrets.HF_TOKEN }}
+          repo_type: space
