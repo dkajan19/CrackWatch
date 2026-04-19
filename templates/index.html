@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CrackWatch</title>
+    <link rel="icon"
+        href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23e11d48' d='M12,2A9,9 0 0,0 3,11C3,14.03 4.53,16.82 7,18.47V22H9V19H11V22H13V19H15V22H17V18.46C19.47,16.81 21,14.03 21,11A9,9 0 0,0 12,2M8,11A2,2 0 0,1 10,13A2,2 0 0,1 8,15A2,2 0 0,1 6,13A2,2 0 0,1 8,11M16,11A2,2 0 0,1 18,13A2,2 0 0,1 16,15A2,2 0 0,1 14,13A2,2 0 0,1 16,11M12,14L13,15L12,16L11,15L12,14Z' /%3E%3C/svg%3E">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+    <header class="hero-header">
+        <a href="/" class="logo-wrapper" style="text-decoration: none; display: inline-flex;">
+            <svg class="skeleton-icon" viewBox="0 0 24 24">
+                <path
+                    d="M12,2A9,9 0 0,0 3,11C3,14.03 4.53,16.82 7,18.47V22H9V19H11V22H13V19H15V22H17V18.46C19.47,16.81 21,14.03 21,11A9,9 0 0,0 12,2M8,11A2,2 0 0,1 10,13A2,2 0 0,1 8,15A2,2 0 0,1 6,13A2,2 0 0,1 8,11M16,11A2,2 0 0,1 18,13A2,2 0 0,1 16,15A2,2 0 0,1 14,13A2,2 0 0,1 16,11M12,14L13,15L12,16L11,15L12,14Z" />
+            </svg>
+            <h1>CrackWatch</h1>
+        </a>
+
+        <div id="stats" class="stats-bar"></div>
+
+        <div class="search-container">
+            <div class="search-field">
+                <input type="text" id="gameSearch" placeholder="Search by title, DRM, or scene group..."
+                    oninput="filterGames()">
+                <button id="searchResetBtn" class="search-reset-btn" type="button" onclick="resetSearch()"
+                    aria-label="Clear search">×</button>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div id="app">
+            <section id="sec-cracked">
+                <div class="section-header">
+                    <div style="width: 14px; height: 14px; border-radius: 4px; background: var(--accent-cracked)"></div>
+                    <h2>Cracked Games</h2>
+                </div>
+                <div id="list-cracked" class="grid"></div>
+                <div id="more-cracked" class="show-more-container"></div>
+            </section>
+
+            <section id="sec-uncracked">
+                <div class="section-header">
+                    <div style="width: 14px; height: 14px; border-radius: 4px; background: var(--accent-uncracked)">
+                    </div>
+                    <h2>Uncracked Titles</h2>
+                </div>
+                <div id="list-uncracked" class="grid"></div>
+                <div id="more-uncracked" class="show-more-container"></div>
+            </section>
+
+            <section id="sec-upcoming">
+                <div class="section-header">
+                    <div style="width: 14px; height: 14px; border-radius: 4px; background: var(--accent-upcoming)">
+                    </div>
+                    <h2>Upcoming Releases</h2>
+                </div>
+                <div id="list-upcoming" class="grid"></div>
+                <div id="more-upcoming" class="show-more-container"></div>
+            </section>
+        </div>
+    </div>
+
+    <button id="pageScrollTopBtn" class="page-scroll-top" type="button" onclick="scrollPageTop()"
+        aria-label="Scroll page to top">↑</button>
+
+    <div id="popupModal" class="modal-backdrop hidden" onclick="closeModal(event)">
+        <div class="modal-card" onclick="event.stopPropagation()">
+            <div id="modalLoadingOverlay" class="modal-loading-overlay">
+                <div class="spinner" style="width: 50px; height: 50px; border-width: 4px;"></div>
+                <span
+                    style="color: var(--text-main); font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase;">Loading
+                    game data...</span>
+            </div>
+
+            <button class="modal-close-btn" onclick="closeModal()" aria-label="Close popup">×</button>
+
+            <div id="modalContentWrapper" class="hidden"
+                style="display: flex; flex-direction: column; height: 100%; overflow: hidden;">
+                <div class="modal-body" style="flex: 1; overflow-y: auto; width: 100%;">
+
+                    <div id="modalHeader" class="modal-header" style="background-image:url('')">
+                        <div class="modal-header-content">
+                            <div class="modal-summary">
+                                <div class="modal-summary-media">
+                                    <img id="modalSummaryImage" class="modal-summary-image" src=""
+                                        alt="Game preview image">
+                                    <div class="status-pill" id="modalStatus">CRACKED</div>
+                                </div>
+                                <div class="modal-summary-copy">
+                                    <h2 id="modalTitle">Game Title</h2>
+                                    <p class="modal-status-text" id="modalStoreHeadline">Opening Steam details…</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-body">
+                        <div class="modal-grid">
+                            <main class="modal-main">
+                                <div id="gameplaySection" class="modal-section hidden">
+                                    <h3><span class="section-icon"><svg class="icon-svg" viewBox="0 0 24 24">
+                                                <path
+                                                    d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.33z">
+                                                </path>
+                                                <polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"></polygon>
+                                            </svg></span>Gameplay</h3>
+                                    <div id="youtubeContainer"
+                                        style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 16px; background: #000;">
+                                        <iframe id="youtubePlayer"
+                                            style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"
+                                            frameborder="0"
+                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                            allowfullscreen></iframe>
+                                    </div>
+                                    <div style="margin-top: 15px; text-align: left;">
+                                        <a id="youtubeMoreBtn" href="#" target="_blank" rel="noopener noreferrer"
+                                            class="btn-show-more btn-outline"
+                                            style="display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; font-size: 0.75rem; text-decoration: none;">
+                                            <svg class="icon-svg" viewBox="0 0 24 24"
+                                                style="width: 1.2em; height: 1.2em;">
+                                                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6">
+                                                </path>
+                                                <polyline points="15 3 21 3 21 9"></polyline>
+                                                <line x1="10" y1="14" x2="21" y2="3"></line>
+                                            </svg>
+                                            Explore more on YouTube
+                                        </a>
+                                    </div>
+                                </div>
+                                <div class="modal-section">
+                                    <h3><span class="section-icon"><svg class="icon-svg" viewBox="0 0 24 24">
+                                                <path d="M5 4h11l5 5v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z">
+                                                </path>
+                                                <path d="M14 4v5h5"></path>
+                                                <path d="M9 12h6"></path>
+                                                <path d="M9 16h6"></path>
+                                            </svg></span>Full description</h3>
+                                    <div id="modalFullDescription" class="modal-description">Loading game description...
+                                    </div>
+                                    <div id="modalDescriptionError" class="modal-error hidden"></div>
+                                </div>
+                            </main>
+                            <aside class="modal-sidebar">
+                                <div id="steamMetadataSection" class="sidebar-block">
+                                    <h3 id="steamMetadataHeading">Steam metadata</h3>
+                                    <div class="detail-list">
+                                        <div class="detail-row-modal"><span class="info-label"><span
+                                                    class="info-icon"><svg class="icon-svg" viewBox="0 0 24 24">
+                                                        <path d="M5 12h14"></path>
+                                                        <path d="M7 6h10"></path>
+                                                        <path d="M7 18h10"></path>
+                                                    </svg></span>DRM</span><span class="info-value"
+                                                id="modalDrm">N/A</span></div>
+                                        <div class="detail-row-modal"><span class="info-label"><span
+                                                    class="info-icon"><svg class="icon-svg" viewBox="0 0 24 24">
+                                                        <rect x="4" y="4" width="16" height="16" rx="2"></rect>
+                                                        <path d="M8 2v4"></path>
+                                                        <path d="M16 2v4"></path>
+                                                        <path d="M3 10h18"></path>
+                                                    </svg></span>Release Date</span><span class="info-value"
+                                                id="modalReleaseDate">TBA</span></div>
+                                        <div class="detail-row-modal"><span class="info-label"><span
+                                                    class="info-icon"><svg class="icon-svg" viewBox="0 0 24 24">
+                                                        <circle cx="12" cy="12" r="10"></circle>
+                                                        <path d="M12 6v6l4 2"></path>
+                                                    </svg></span>Crack Date</span><span class="info-value"
+                                                id="modalCrackDate">N/A</span></div>
+                                        <div class="detail-row-modal"><span class="info-label"><span
+                                                    class="info-icon"><svg class="icon-svg" viewBox="0 0 24 24">
+                                                        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                                                        <circle cx="9" cy="7" r="4"></circle>
+                                                    </svg></span>Scene Group</span><span class="info-value"
+                                                id="modalSceneGroup">N/A</span></div>
+                                        <div class="detail-row-modal"><span class="info-label"><span
+                                                    class="info-icon"><svg class="icon-svg" viewBox="0 0 24 24">
+                                                        <path d="M4 6h16v12H4z"></path>
+                                                        <path d="M8 6v12"></path>
+                                                    </svg></span>Developers</span><span class="info-value"
+                                                id="modalDevelopers">Unknown</span></div>
+                                    </div>
+                                </div>
+                                <div id="steamMetadataSection" class="sidebar-block">
+                                    <h3 id="steamMetadataHeading">Steam metadata</h3>
+                                    <div class="detail-list">
+                                        <div class="detail-row-modal"><span class="info-label"><span
+                                                    class="info-icon"><svg class="icon-svg" viewBox="0 0 24 24">
+                                                        <path d="M4 7h16v10H4z"></path>
+                                                        <path d="M7 10h3"></path>
+                                                        <path d="M7 14h3"></path>
+                                                    </svg></span>Platforms</span><span class="info-value"
+                                                id="modalSteamPlatform">N/A</span></div>
+                                        <div class="detail-row-modal"><span class="info-label"><span
+                                                    class="info-icon"><svg class="icon-svg" viewBox="0 0 24 24">
+                                                        <path d="M12 3L8 21l4-2 4 2-4-18z"></path>
+                                                    </svg></span>Genres</span><span class="info-value"
+                                                id="modalSteamGenres">N/A</span></div>
+                                        <div class="detail-row-modal"><span class="info-label"><span
+                                                    class="info-icon"><svg class="icon-svg" viewBox="0 0 24 24">
+                                                        <path d="M4 7h16v10H4z"></path>
+                                                        <path d="M8 11h8"></path>
+                                                    </svg></span>Publishers</span><span class="info-value"
+                                                id="modalSteamPublisher">N/A</span></div>
+                                        <div class="detail-row-modal"><span class="info-label"><span
+                                                    class="info-icon"><svg class="icon-svg" viewBox="0 0 24 24">
+                                                        <path d="M6 7h12v10H6z"></path>
+                                                        <path d="M9 10h6"></path>
+                                                        <path d="M9 14h3"></path>
+                                                    </svg></span>Steam Price</span><span class="info-value"
+                                                id="modalSteamPrice">N/A</span></div>
+                                    </div>
+                                </div>
+                                <div id="modalMetaError" class="modal-error hidden"></div>
+                                <a id="modalStoreLink" class="modal-store-link" href="#" target="_blank"
+                                    rel="noopener noreferrer" title="Open Steam page">
+                                    <div class="steam-logo" aria-hidden="true"></div>
+                                </a>
+                            </aside>
+                        </div>
+                        <section class="modal-requirements">
+                            <div class="modal-section">
+                                <h3><span class="section-icon"><svg class="icon-svg" viewBox="0 0 24 24">
+                                            <rect x="3" y="5" width="18" height="14" rx="2"></rect>
+                                            <path d="M8 5v4"></path>
+                                            <path d="M16 5v4"></path>
+                                            <path d="M3 10h18"></path>
+                                        </svg></span>System requirements from Steam</h3>
+                                <div id="modalSteamRequirements" class="steam-requirements">
+                                    <div class="modal-status-text">Loading Steam requirements...</div>
+                                </div>
+                                <div id="modalSteamError" class="modal-error hidden"></div>
+                            </div>
+                        </section>
+                    </div>
+                    <button id="modalScrollTopBtn" class="modal-scroll-top" type="button" onclick="scrollModalTop()"
+                        aria-label="Scroll modal to top">↑</button>
+                </div>
+            </div>
+            <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+
+</html>
