@@ -2,9 +2,10 @@ name: Sync to Hugging Face Hub
 on:
   push:
     branches: [main]
+  workflow_dispatch: # Umožní ti spustiť sync manuálne tlačidlom v Actions
 
 jobs:
-  sync:
+  sync-to-hub:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -12,10 +13,7 @@ jobs:
           fetch-depth: 0
           lfs: true
 
-      - name: Push to Hub
-        uses: huggingface/hub-sync@v0.0.1
-        with:
-          github_repo_id: ${{ github.repository }}
-          huggingface_repo_id: dkajan9/crackwatch
-          hf_token: ${{ secrets.HF_TOKEN }}
-          repo_type: space
+      - name: Push to hub
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: git push --force https://dkajan9:$HF_TOKEN@huggingface.co/spaces/dkajan9/crackwatch main
