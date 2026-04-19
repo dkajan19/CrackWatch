@@ -1,7 +1,7 @@
 name: Sync to Hugging Face Hub
 on:
   push:
-    branches: [main] # Spustí sa pri každom pushi do vetvy main
+    branches: [main]
 
 jobs:
   sync:
@@ -10,10 +10,10 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          lfs: true # Dôležité, ak máš veľké súbory
+          lfs: true
 
       - name: Push to Hub
-        uses: huggingface/hub-sync@v1.0
+        uses: huggingface/hub-sync@v0.0.1
         with:
           github_repo_id: ${{ github.repository }}
           huggingface_repo_id: dkajan9/crackwatch
