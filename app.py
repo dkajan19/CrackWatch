@@ -17,6 +17,8 @@ SUPA_KEY = ('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9'
             '.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJvcHhlZGtjamRwZWl5c3Fsc21uIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1MDE0NDEsImV4cCI6MjA4ODA3NzQ0MX0'
             '.SQxiqUp1VISnCz214Z-z6TH9FH-YXV7fV-Kvj2qJHWE')
 
+YOUTUBE_API_KEY = os.getenv("YOUTUBE_API_KEY")
+
 # ── Logika (nezmenená) ─────────────────────────────────────────────────────────
 
 def compute_badge(game):
@@ -206,20 +208,35 @@ def api_steam():
 
 @app.route('/api/youtube')
 def api_youtube():
+    if not YOUTUBE_API_KEY:
+        return jsonify({"error": "API key not configured in HF Settings"}), 500
+
     query = request.args.get('query', '').strip()
     if not query:
         return jsonify({"error": "Missing query parameter"}), 400
+        
     try:
-        search_url = f"https://www.youtube.com/results?search_query={quote_plus(query + ' gameplay')}"
-        headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'}
-        resp = requests.get(search_url, timeout=10, headers=headers)
-        resp.raise_for_status()
-        match = re.search(r'"videoId":"([^"]+)"', resp.text)
-        if match:
-            return jsonify({"videoId": match.group(1)})
+        api_url = "https://www.googleapis.com/youtube/v3/search"
+        params = {
+            "part": "snippet",
+            "q": f"{query} gameplay",
+            "type": "video",
+            "maxResults": 1,
+            "key": YOUTUBE_API_KEY
+        }
+
+        resp = requests.get(api_url, params=params, timeout=10)
+        resp.raise_for_status() 
+        data = resp.json()
+
+        if data.get("items"):
+            video_id = data["items"][0]["id"]["videoId"]
+            return jsonify({"videoId": video_id})
+            
         return jsonify({"error": "No video found"}), 404
+
     except Exception as exc:
-        return jsonify({"error": str(exc)}), 502
+        return jsonify({"error": str(exc)}), 500
 
 
 if __name__ == '__main__':
