@@ -266,6 +266,32 @@ h1 {
     color: white;
     text-transform: uppercase;
     letter-spacing: 0.05em;
+    overflow: hidden;
+}
+
+.badge::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg,
+            transparent,
+            rgba(255, 255, 255, 0.25),
+            transparent);
+    animation: shimmer-swipe 3s infinite;
+}
+
+@keyframes shimmer-swipe {
+    0% {
+        transform: translateX(-100%);
+    }
+
+    25%,
+    100% {
+        transform: translateX(200%);
+    }
 }
 
 .card-content {
@@ -360,6 +386,7 @@ h1 {
     display: flex;
     justify-content: center;
     gap: 15px;
+    margin-bottom: 50px;
 }
 
 .btn-show-more {
@@ -447,6 +474,11 @@ h1 {
     min-height: 0;
 }
 
+.modal-grid.no-sidebar {
+    grid-template-columns: 1fr;
+    padding-bottom: 40px;
+}
+
 .modal-requirements {
     padding: 0 32px 32px;
     min-width: 0;
@@ -457,90 +489,75 @@ h1 {
     position: absolute;
     top: 18px;
     right: 18px;
-    width: 40px;
-    height: 40px;
-    border: none;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.12);
-    color: var(--text-main);
-    font-size: 1.5rem;
-    cursor: pointer;
     z-index: 300;
-    /* Higher than loading overlay */
-    transition: transform 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
-    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.18);
-    backdrop-filter: blur(12px);
-}
-
-.modal-close-btn:hover {
-    transform: scale(1.05);
-    background: rgba(255, 255, 255, 0.2);
 }
 
 .modal-scroll-top {
     position: absolute;
     right: 20px;
     bottom: calc(22px + env(safe-area-inset-bottom));
-    width: 44px;
-    height: 44px;
-    border: none;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.08);
-    color: var(--text-main);
-    display: grid;
-    place-items: center;
-    padding: 0 0 4px 0;
-    /* Visual adjustment to lift the arrow */
-    font-size: 1.1rem;
-    cursor: pointer;
-    box-shadow: 0 18px 36px rgba(0, 0, 0, 0.25);
-    transition: transform 0.2s ease, opacity 0.2s ease, visibility 0.2s ease;
     opacity: 0;
     visibility: hidden;
     z-index: 3;
-}
-
-.modal-scroll-top.visible {
-    opacity: 1;
-    visibility: visible;
-}
-
-.modal-scroll-top:hover {
-    transform: translateY(-2px);
 }
 
 .page-scroll-top {
     position: fixed;
     right: 20px;
     bottom: calc(20px + env(safe-area-inset-bottom));
+    opacity: 0;
+    visibility: hidden;
+    z-index: 999;
+}
+
+/* Zjednotený štýl pre všetky akčné okrúhle tlačidlá */
+.modal-close-btn,
+.modal-scroll-top,
+.page-scroll-top {
     width: 44px;
     height: 44px;
     border: none;
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.14);
+    background: rgba(255, 255, 255, 0.12);
     color: var(--text-main);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
     display: grid;
     place-items: center;
-    padding: 0 0 4px 0;
-    /* Visual adjustment to lift the arrow */
-    font-size: 1.25rem;
     cursor: pointer;
-    box-shadow: 0 16px 28px rgba(0, 0, 0, 0.24);
-    transition: transform 0.2s ease, opacity 0.2s ease, visibility 0.2s ease, background-color 0.2s ease;
-    opacity: 0;
-    visibility: hidden;
-    z-index: 999;
-    backdrop-filter: blur(10px);
+    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.2);
+    transition: transform 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease, visibility 0.2s ease;
+    padding: 0;
+    font-family: inherit;
+    line-height: 1;
 }
 
+.modal-close-btn {
+    font-size: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-bottom: 10px;
+}
+
+.modal-scroll-top,
+.page-scroll-top {
+    font-size: 1.25rem;
+    padding-bottom: 4px;
+}
+
+.modal-close-btn:hover,
+.modal-scroll-top:hover,
+.page-scroll-top:hover {
+    transform: scale(1.05) translateY(-2px);
+    background: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+}
+
+.modal-scroll-top.visible,
 .page-scroll-top.visible {
     opacity: 1;
     visibility: visible;
-}
-
-.page-scroll-top:hover {
-    transform: translateY(-2px);
-    background: rgba(255, 255, 255, 0.24);
 }
 
 .modal-header {
@@ -1165,21 +1182,6 @@ body::-webkit-scrollbar-thumb:hover {
         padding: 0 18px 18px;
         margin-top: 0 !important;
     }
-
-    .modal-close-btn {
-        top: calc(10px + env(safe-area-inset-top)) !important;
-        right: 10px !important;
-        background: rgba(0, 0, 0, 0.5) !important;
-        width: 44px;
-        height: 44px;
-        font-size: 1.8rem;
-        position: absolute;
-        z-index: 1001;
-    }
-
-    .show-more-container {
-        margin-bottom: 80px;
-    }
 }
 
 .modal-section {
@@ -1558,23 +1560,6 @@ body::-webkit-scrollbar-thumb:hover {
 #gameSearch,
 .card {
     transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-
-.badge {
-    background-size: 200% 100%;
-    animation: shimmer 4s linear infinite;
-}
-
-.bg-cracked {
-    background-image: linear-gradient(90deg, var(--accent-cracked), #10b981, #34d399, var(--accent-cracked));
-}
-
-.bg-uncracked {
-    background-image: linear-gradient(90deg, var(--accent-uncracked), #ef4444, #f87171, var(--accent-uncracked));
-}
-
-.bg-upcoming {
-    background-image: linear-gradient(90deg, var(--accent-upcoming), #8b5cf6, #a78bfa, var(--accent-upcoming));
 }
 
 .fade-in {

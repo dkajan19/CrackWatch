@@ -257,7 +257,6 @@ function openGameModal(gameId) {
         : 'N/A';
     document.getElementById('modalCrackDate').textContent = crackDate;
     document.getElementById('modalSceneGroup').textContent = game.details.scene_group || 'N/A';
-    document.getElementById('modalDevelopers').textContent = game.details.developers || 'Unknown';
 
     const previewImage = game.images.cover || game.images.header || '';
     document.getElementById('modalHeader').style.backgroundImage = `url('${previewImage}')`;
@@ -271,12 +270,17 @@ function openGameModal(gameId) {
     document.getElementById('youtubeContainer').innerHTML = '';
 
     // Reset sekcií (zobrazenie)
-    document.querySelectorAll('#gameplaySection, #modalFullDescription, #modalSteamRequirements, #steamMetadataSection').forEach(el => {
+    const modalSidebar = document.querySelector('.modal-sidebar');
+    const modalGrid = document.querySelector('.modal-grid');
+    if (modalSidebar) modalSidebar.classList.remove('hidden');
+    if (modalGrid) modalGrid.classList.remove('no-sidebar');
+
+    document.querySelectorAll('#modalFullDescription, #modalSteamRequirements, #gameMetadataSection, #steamMetadataSection').forEach(el => {
         el.style.display = '';
         el.classList.remove('hidden');
     });
     // Reset nadpisov
-    document.querySelectorAll('.modal-section h3, #steamMetadataHeading').forEach(el => {
+    document.querySelectorAll('.modal-section h3, #gameMetadataHeading, #steamMetadataHeading').forEach(el => {
         el.style.display = '';
     });
 
@@ -300,13 +304,19 @@ function openGameModal(gameId) {
         console.error('Steam fetch error:', error);
 
         // 1. Skrytie celých sekcií a ich nadpisov
-        document.querySelectorAll('#modalFullDescription, #modalSteamRequirements, .modal-requirements, #steamMetadataSection').forEach(el => {
+        document.querySelectorAll('#modalFullDescription, #modalSteamRequirements, .modal-requirements, #gameMetadataSection, #steamMetadataSection').forEach(el => {
             el.style.display = 'none';
         });
+        
+        // Skrytie celého sidebar-u
+        if (modalSidebar) modalSidebar.classList.add('hidden');
+        if (modalGrid) modalGrid.classList.add('no-sidebar');
+
         document.querySelectorAll('h3').forEach(h3 => {
             if (h3.innerText.includes('Full description') || 
                 h3.innerText.includes('System requirements from Steam') || 
-                h3.innerText.includes('Steam metadata')) {
+                h3.innerText.includes('Steam metadata') ||
+                h3.innerText.includes('Game info')) {
                 h3.style.display = 'none';
             }
         });
@@ -650,14 +660,33 @@ function filterGames() {
 
         // 2. SAMOTNÉ FILTROVANIE A VYKRESLENIE
         // Pridáme malý delay (300ms), aby loader len nepreblikol, ale bol chvíľu vidieť
-        setTimeout(() => {
+        setTimeout(async () => {
+            const searchResults = {};
+            let allImageUrls = [];
+
             sections.forEach(s => {
                 const filtered = gamesData[s].filter(g =>
                     g.title.toLowerCase().includes(query) ||
                     g.details.drm.toLowerCase().includes(query) ||
                     (g.details.scene_group && g.details.scene_group.toLowerCase().includes(query))
                 );
+                searchResults[s] = filtered;
+                
+                if (query.length > 0) {
+                    filtered.forEach(g => {
+                        const url = g.images.header || g.images.cover;
+                        if (url) allImageUrls.push(url);
+                    });
+                }
+            });
 
+            // Ak vyhľadávame, počkáme na obrázky
+            if (query.length > 0 && allImageUrls.length > 0) {
+                await preloadImages(allImageUrls);
+            }
+
+            sections.forEach(s => {
+                const filtered = searchResults[s];
                 const listId = `list-${s}`;
                 const btnId = `more-${s}`;
                 const badge = s === 'cracked' ? 'bg-cracked' : (s === 'upcoming' ? 'bg-upcoming' : 'bg-uncracked');
