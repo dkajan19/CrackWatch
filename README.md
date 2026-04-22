@@ -10,7 +10,7 @@ pinned: false
 short_description: Tracking game crack status
 ---
 
-# <img src="./docs/icon.svg" width="25" /> CrackWatch
+# <img src="https://raw.githubusercontent.com/dkajan19/CrackWatch/refs/heads/main/docs/icon.svg" width="25" /> CrackWatch
 
 ![Python](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54)
 ![Flask](https://img.shields.io/badge/flask-%23000.svg?style=for-the-badge&logo=flask&logoColor=white)
@@ -65,12 +65,12 @@ Experience the live version of the application here:
 ## Screenshots
 <p>
   <p align="center"><b>Main Page</b></p>
-  <img src="./docs/main_page.png" alt="Main Page">
+  <img src="https://raw.githubusercontent.com/dkajan19/CrackWatch/refs/heads/main/docs/main_page.png" alt="Main Page">
 </p>
 
 <p>
   <p align="center"><b>Modal Dialog</b></p>
-  <img src="./docs/modal_dialog.png" alt="Modal Dialog">
+  <img src="https://raw.githubusercontent.com/dkajan19/CrackWatch/refs/heads/main/docs/modal_dialog.png" alt="Modal Dialog">
 </p>
 
 ## Support & Feedback
