@@ -10,7 +10,7 @@ pinned: false
 short_description: Tracking game crack status
 ---
 
-# <img src="./icon.svg" width="25" /> CrackWatch
+# <img src="./docs/icon.svg" width="25" /> CrackWatch
 
 ![Python](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54)
 ![Flask](https://img.shields.io/badge/flask-%23000.svg?style=for-the-badge&logo=flask&logoColor=white)
@@ -21,12 +21,14 @@ short_description: Tracking game crack status
 
 CrackWatch is a web application designed to track the crack status of PC games. It provides real-time information on whether a game is cracked, its DRM protection, scene group details, and upcoming releases. The app integrates with Steam and YouTube to provide comprehensive game metadata and gameplay previews.
 
+<a href='https://ko-fi.com/J3J11RQE5L' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://storage.ko-fi.com/cdn/kofi2.png?v=6' border='0' alt='Buy Me a Coffee at ko-fi.com' /></a>
+
 ## Table of Contents
 - [Features and Usage](#features-and-usage)
 - [Instructions](#instructions)
 - [Technical Specifications](#technical-specifications)
-- [Screenshots](#screenshots)
 - [Live Demo](#live-demo)
+- [Screenshots](#screenshots)
 - [Support & Feedback](#support--feedback)
 - [Disclaimer](#disclaimer)
 - [License](#license)
@@ -56,12 +58,20 @@ CrackWatch is a web application designed to track the crack status of PC games. 
 ### Under the Hood
 The application uses a dynamic backend to process game data from Supabase and enriches it with real-time data from external providers. It calculates "D+X" days for cracked games and "D-X" countdowns for upcoming releases to provide clear status insights.
 
-## Screenshots
-*(Screenshots coming soon)*
-
 ## Live Demo
 Experience the live version of the application here:
 **[dkajan9-crackwatch.hf.space](https://dkajan9-crackwatch.hf.space)**
+
+## Screenshots
+<p>
+  <p align="center"><b>Main Page</b></p>
+  <img src="./docs/main_page.png" alt="Main Page">
+</p>
+
+<p>
+  <p align="center"><b>Modal Dialog</b></p>
+  <img src="./docs/modal_dialog.png" alt="Modal Dialog">
+</p>
 
 ## Support & Feedback
 If you encounter any bugs, have questions, or want to suggest new features, please **[open an issue](../../issues)**. Your feedback is highly appreciated!
@@ -71,3 +81,5 @@ This project is for informational purposes only. It does not host, provide, or l
 
 ## License
 This project is licensed under the **MIT License**. See the **[LICENSE](./LICENSE)** file for full details.
+
+![visitors](https://visitor-badge.laobi.icu/badge?page_id=dkajan19.crackwatch)
