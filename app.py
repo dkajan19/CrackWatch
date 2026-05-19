@@ -55,10 +55,10 @@ def compute_badge(game):
 def process_game(p):
     img = p.get('cover_url', '')
     if img and not img.startswith('http'):
-        img = f"https://isitcracked.com{img}"
+        img = f"https://cdn.isitcracked.com{img}"
     header_img = p.get('header_url', '')
     if header_img and not header_img.startswith('http'):
-        header_img = f"https://isitcracked.com{header_img}"
+        header_img = f"https://cdn.isitcracked.com{header_img}"
     elif not header_img:
         header_img = img
     return {
