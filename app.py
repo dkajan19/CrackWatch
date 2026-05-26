@@ -13,10 +13,10 @@ from flask import Flask, jsonify, request, send_file, abort, render_template, ur
 app = Flask(__name__)
 
 # ── Konfigurácia ──────────────────────────────────────────────────────────────
-SUPA_URL = 'https://bopxedkcjdpeiysqlsmn.supabase.co/rest/v1/games'
+SUPA_URL = 'https://lhvknkrfhehcclzlabsl.supabase.co/rest/v1/games'
 SUPA_KEY = ('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9'
-            '.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJvcHhlZGtjamRwZWl5c3Fsc21uIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1MDE0NDEsImV4cCI6MjA4ODA3NzQ0MX0'
-            '.SQxiqUp1VISnCz214Z-z6TH9FH-YXV7fV-Kvj2qJHWE')
+            '.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxodmtua3JmaGVoY2NsemxhYnNsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg4NzM0MTksImV4cCI6MjA5NDQ0OTQxOX0'
+            '.B7YOW_hpn2zHxR-sfHgiNgqidpfESwJpixLrh-MevE8')
 
 YOUTUBE_API_KEY = os.getenv("YOUTUBE_API_KEY")
 
@@ -26,6 +26,13 @@ def compute_badge(game):
     status = game.get('status')
     release_date_str = game.get('release_date')
     crack_date_str = game.get('crack_date')
+    
+    # Fallback pre hypervisor ak chýba crack_date
+    if status == 'hypervisor' and not crack_date_str:
+        created_at = game.get('created_at', '')
+        if created_at:
+            crack_date_str = created_at[:10]
+
     today = datetime.now().date()
     try:
         if status == 'cracked':
@@ -36,7 +43,12 @@ def compute_badge(game):
             diff = (crk - rel).days
             return f"CRACKED D+{diff}" if diff > 0 else "CRACKED D+0"
         if status == 'hypervisor':
-            return 'HYPERVISOR'
+            if not release_date_str or not crack_date_str:
+                return 'HYPERVISOR'
+            rel = datetime.strptime(release_date_str, '%Y-%m-%d').date()
+            crk = datetime.strptime(crack_date_str, '%Y-%m-%d').date()
+            diff = (crk - rel).days
+            return f"HYPERVISOR D+{diff}" if diff >= 0 else f"HYPERVISOR D{diff}"
         if status == 'unreleased':
             if not release_date_str:
                 return 'UPCOMING'
@@ -67,6 +79,15 @@ def process_game(p):
     elif not header_img:
         header_img = img
         
+    # Určenie crack_date s fallbackom na created_at (len pre hypervisor) alebo release_date
+    crack_date = p.get('crack_date')
+    if not crack_date:
+        if p.get('status') == 'hypervisor':
+            created_at = p.get('created_at', '')
+            crack_date = created_at[:10] if created_at else p.get('release_date', 'TBA')
+        else:
+            crack_date = p.get('release_date', 'TBA')
+
     return {
         "id": p.get('id'),
         "title": p.get('title', 'Unknown Title'),
@@ -81,7 +102,7 @@ def process_game(p):
             "scene_group": p.get('scene_group', 'NONE'),
             "drm": p.get('drm_protection', 'N/A'),
             "release_date": p.get('release_date', 'TBA'),
-            "crack_date": p.get('crack_date', p.get('release_date', 'TBA')),
+            "crack_date": crack_date,
             "developers": p.get('developers', 'Unknown'),
             "description": p.get('description', ''),
         },

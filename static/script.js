@@ -4,6 +4,7 @@ const INCREMENT = 6;
 // Store current visible counts for each category
 const visibilityMap = {
     'list-cracked': INITIAL_LIMIT,
+    'list-hypervisor': INITIAL_LIMIT,
     'list-uncracked': INITIAL_LIMIT,
     'list-upcoming': INITIAL_LIMIT
 };
@@ -23,6 +24,21 @@ async function init() {
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         gamesData = await res.json();
         if (gamesData.error) throw new Error(gamesData.error);
+
+        // Preload visible images before showing content
+        const initialImages = [];
+        ['cracked', 'hypervisor', 'uncracked', 'upcoming'].forEach(cat => {
+            if (gamesData[cat]) {
+                gamesData[cat].slice(0, INITIAL_LIMIT).forEach(game => {
+                    const url = game.images.header || game.images.cover;
+                    if (url) initialImages.push(url);
+                });
+            }
+        });
+        if (initialImages.length > 0) {
+            await preloadImages(initialImages);
+        }
+
     } catch (err) {
         document.getElementById('app').innerHTML = `<div class="no-results" style="padding:60px;text-align:center;color:#ef4444;">❌ Error loading data: ${err.message}</div>`;
         return;
@@ -36,6 +52,14 @@ async function init() {
                     </div>
                     <div id="list-cracked" class="grid"></div>
                     <div id="more-cracked" class="show-more-container"></div>
+                </section>
+                <section id="sec-hypervisor">
+                    <div class="section-header">
+                        <div style="width:14px;height:14px;border-radius:4px;background:var(--accent-hypervisor)"></div>
+                        <h2>Hypervisor Protected</h2>
+                    </div>
+                    <div id="list-hypervisor" class="grid"></div>
+                    <div id="more-hypervisor" class="show-more-container"></div>
                 </section>
                 <section id="sec-uncracked">
                     <div class="section-header">
@@ -64,8 +88,9 @@ function updateStats() {
 
     // Naplnenie HTML obsahu
     statsElement.innerHTML = `
-        <div class="stat-item stat-db" style="transition-delay: 0.1s">DB: <b>${d.cracked.length + d.uncracked.length + d.upcoming.length}</b></div>
+        <div class="stat-item stat-db" style="transition-delay: 0.1s">DB: <b>${d.cracked.length + d.hypervisor.length + d.uncracked.length + d.upcoming.length}</b></div>
         <div class="stat-item stat-cracked" style="transition-delay: 0.2s">Cracked: <b>${d.cracked.length}</b></div>
+        <div class="stat-item stat-hypervisor" style="transition-delay: 0.25s">Hypervisor: <b>${d.hypervisor.length}</b></div>
         <div class="stat-item stat-uncracked" style="transition-delay: 0.3s">Uncracked: <b>${d.uncracked.length}</b></div>
         <div class="stat-item stat-upcoming" style="transition-delay: 0.4s">Upcoming: <b>${d.upcoming.length}</b></div>
     `;
@@ -107,7 +132,7 @@ function renderCategory(list, elementId, buttonId, badgeClass, borderClass, isSe
                         <div class="info-row"><span class="label">DRM Protection</span><span class="value">${game.details.drm}</span></div>
                         <div class="info-row"><span class="label">Release Date</span><span class="value">${game.details.release_date}</span></div>
                         <div class="info-row"><span class="label">Scene Group</span><span class="value">${game.details.scene_group || 'N/A'}</span></div>
-                        <p class="description">${game.details.description || 'No description available for this title.'}</p>
+                        <div class="description">${game.details.description || 'No description available for this title.'}</div>
                     </div>
                 </div>
             `;
@@ -222,12 +247,13 @@ async function showEverything(elementId, buttonId) {
 }
 function renderAll() {
     renderCategory(gamesData.cracked, 'list-cracked', 'more-cracked', 'bg-cracked', 'border-cracked');
+    renderCategory(gamesData.hypervisor, 'list-hypervisor', 'more-hypervisor', 'bg-hypervisor', 'border-hypervisor');
     renderCategory(gamesData.uncracked, 'list-uncracked', 'more-uncracked', 'bg-uncracked', 'border-uncracked');
     renderCategory(gamesData.upcoming, 'list-upcoming', 'more-upcoming', 'bg-upcoming', 'border-upcoming');
 }
 
 function openGameModal(gameId) {
-    const allGames = [...gamesData.cracked, ...gamesData.uncracked, ...gamesData.upcoming];
+    const allGames = [...gamesData.cracked, ...gamesData.hypervisor, ...gamesData.uncracked, ...gamesData.upcoming];
     const game = allGames.find(g => String(g.id) === String(gameId));
     if (!game) return;
 
@@ -252,7 +278,8 @@ function openGameModal(gameId) {
     document.getElementById('modalStatus').textContent = game.status_info.badge || 'UNKNOWN';
     document.getElementById('modalDrm').textContent = game.details.drm || 'N/A';
     document.getElementById('modalReleaseDate').textContent = game.details.release_date || 'TBA';
-    const crackDate = (String(game.status_info.badge || '').toLowerCase().includes('cracked'))
+    const badgeText = String(game.status_info.badge || '').toLowerCase();
+    const crackDate = (badgeText.includes('cracked') || badgeText.includes('hypervisor'))
         ? (game.details.crack_date || 'N/A')
         : 'N/A';
     document.getElementById('modalCrackDate').textContent = crackDate;
@@ -638,7 +665,7 @@ function filterGames() {
     // Tlačidlo na reset (krížik) zobrazíme/skryjeme okamžite
     if (resetBtn) resetBtn.classList.toggle('visible', query.length > 0);
 
-    const sections = ['cracked', 'uncracked', 'upcoming'];
+    const sections = ['cracked', 'hypervisor', 'uncracked', 'upcoming'];
 
     // Nastavíme nové čakanie (500ms) kým sa spustí vizuálne načítavanie a logika
     filterTimeout = setTimeout(() => {
@@ -648,13 +675,17 @@ function filterGames() {
             sections.forEach(s => {
                 const listId = `list-${s}`;
                 const btnId = `more-${s}`;
-                document.getElementById(listId).innerHTML = `
+                const listEl = document.getElementById(listId);
+                const btnEl = document.getElementById(btnId);
+                if (listEl) {
+                    listEl.innerHTML = `
                         <div class="search-loading-overlay">
                             <div class="search-loading-text">Searching database...</div>
                             <div class="progress-bar-container"><div class="progress-bar-fill"></div></div>
                         </div>
                     `;
-                document.getElementById(btnId).innerHTML = '';
+                }
+                if (btnEl) btnEl.innerHTML = '';
             });
         }
 
@@ -689,15 +720,16 @@ function filterGames() {
                 const filtered = searchResults[s];
                 const listId = `list-${s}`;
                 const btnId = `more-${s}`;
-                const badge = s === 'cracked' ? 'bg-cracked' : (s === 'upcoming' ? 'bg-upcoming' : 'bg-uncracked');
-                const border = s === 'cracked' ? 'border-cracked' : (s === 'upcoming' ? 'border-upcoming' : 'border-uncracked');
+                const badge = s === 'cracked' ? 'bg-cracked' : (s === 'hypervisor' ? 'bg-hypervisor' : (s === 'upcoming' ? 'bg-upcoming' : 'bg-uncracked'));
+                const border = s === 'cracked' ? 'border-cracked' : (s === 'hypervisor' ? 'border-hypervisor' : (s === 'upcoming' ? 'border-upcoming' : 'border-uncracked'));
 
                 if (query.length > 0) {
                     const originalLimit = visibilityMap[listId];
                     visibilityMap[listId] = 9999; // Pri hľadaní ukážeme všetko
                     renderCategory(filtered, listId, btnId, badge, border, true);
                     visibilityMap[listId] = originalLimit;
-                    document.getElementById(btnId).innerHTML = '';
+                    const btnEl = document.getElementById(btnId);
+                    if (btnEl) btnEl.innerHTML = '';
                 } else {
                     // Ak je vyhľadávanie prázdne, vrátime pôvodné zoznamy
                     renderCategory(gamesData[s], listId, btnId, badge, border, false);
