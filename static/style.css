@@ -65,19 +65,22 @@ h1 {
     justify-content: center;
     gap: 12px;
     margin-top: 0;
-    /* Začíname na nule */
+    margin-bottom: 0;
     flex-wrap: wrap;
     overflow: hidden;
     max-height: 0;
     /* Skryté na začiatku */
     opacity: 0;
-    transition: max-height 0.5s ease, margin-top 0.5s ease, opacity 0.5s ease;
+    transition: max-height 0.8s cubic-bezier(0.4, 0, 0.2, 1), 
+                margin-top 0.8s cubic-bezier(0.4, 0, 0.2, 1), 
+                margin-bottom 0.8s cubic-bezier(0.4, 0, 0.2, 1), 
+                opacity 0.8s ease;
 }
 
 /* Trieda, ktorú pridáme cez JS po načítaní dát */
 .stats-bar.visible {
-    max-height: 100px;
-    /* Dostatočná výška pre badge */
+    max-height: 500px;
+    /* Dostatočná výška pre viacero riadkov badgeov na mobile */
     margin-top: 10px;
     margin-bottom: 20px;
     opacity: 1;
@@ -98,7 +101,7 @@ h1 {
     gap: 8px;
     transform: translateY(-10px);
     opacity: 0;
-    transition: transform 0.4s ease, opacity 0.4s ease;
+    animation: fadeInUp 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
 
 .stats-bar.visible .stat-item {
@@ -1455,22 +1458,6 @@ body::-webkit-scrollbar-thumb:hover {
 
 .stat-item {
     animation: fadeInUp 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) both;
-}
-
-.stat-item:nth-child(1) {
-    animation-delay: 0.1s;
-}
-
-.stat-item:nth-child(2) {
-    animation-delay: 0.2s;
-}
-
-.stat-item:nth-child(3) {
-    animation-delay: 0.3s;
-}
-
-.stat-item:nth-child(4) {
-    animation-delay: 0.4s;
 }
 
 .card {

@@ -86,14 +86,20 @@ function updateStats() {
     const d = gamesData;
     const statsElement = document.getElementById('stats');
 
-    // Naplnenie HTML obsahu
-    statsElement.innerHTML = `
-        <div class="stat-item stat-db" style="transition-delay: 0.1s">DB: <b>${d.cracked.length + d.hypervisor.length + d.uncracked.length + d.upcoming.length}</b></div>
-        <div class="stat-item stat-cracked" style="transition-delay: 0.2s">Cracked: <b>${d.cracked.length}</b></div>
-        <div class="stat-item stat-hypervisor" style="transition-delay: 0.25s">Hypervisor: <b>${d.hypervisor.length}</b></div>
-        <div class="stat-item stat-uncracked" style="transition-delay: 0.3s">Uncracked: <b>${d.uncracked.length}</b></div>
-        <div class="stat-item stat-upcoming" style="transition-delay: 0.4s">Upcoming: <b>${d.upcoming.length}</b></div>
-    `;
+    const statsConfig = [
+        { label: 'DB', value: d.cracked.length + d.hypervisor.length + d.uncracked.length + d.upcoming.length, class: 'stat-db' },
+        { label: 'Cracked', value: d.cracked.length, class: 'stat-cracked' },
+        { label: 'Hypervisor', value: d.hypervisor.length, class: 'stat-hypervisor' },
+        { label: 'Uncracked', value: d.uncracked.length, class: 'stat-uncracked' },
+        { label: 'Upcoming', value: d.upcoming.length, class: 'stat-upcoming' }
+    ];
+
+    // Naplnenie HTML obsahu dynamicky
+    statsElement.innerHTML = statsConfig.map((stat, i) => `
+        <div class="stat-item ${stat.class}" style="animation-delay: ${0.1 + (i * 0.1)}s">
+            ${stat.label}: <b>${stat.value}</b>
+        </div>
+    `).join('');
 
     // Spustenie animácie v ďalšom frame
     requestAnimationFrame(() => {
