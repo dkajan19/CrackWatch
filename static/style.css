@@ -1,4 +1,5 @@
-:root {
+:root,
+html[data-theme="dark"] {
     --bg: #020617;
     --card-bg: #0f172a;
     --text-main: #f8fafc;
@@ -45,7 +46,7 @@
 }
 
 @media (prefers-color-scheme: light) {
-    :root {
+    :root:not([data-theme="dark"]) {
         --bg: #f8fafc;
         --card-bg: #ffffff;
         --text-main: #0f172a;
@@ -80,6 +81,88 @@
         --modal-header-overlay: linear-gradient(180deg, rgba(248, 250, 252, 0.05) 0%, rgba(248, 250, 252, 0.95) 100%);
     }
 }
+
+html[data-theme="light"] {
+    --bg: #f8fafc;
+    --card-bg: #ffffff;
+    --text-main: #0f172a;
+    --text-dim: #64748b;
+    --border: #e2e8f0;
+    --header-gradient: linear-gradient(135deg, #e2e8f0 0%, #f8fafc 100%);
+    --input-bg: rgba(255, 255, 255, 0.9);
+    --input-text: #0f172a;
+    --modal-bg: rgba(255, 255, 255, 0.98);
+    --modal-shadow: rgba(0, 0, 0, 0.15);
+    --backdrop-bg: rgba(248, 250, 252, 0.82);
+    --card-shadow: rgba(0, 0, 0, 0.1);
+    --stat-bg: rgba(226, 232, 240, 0.8);
+    --icon-bg: rgba(15, 23, 42, 0.05);
+    --btn-bg: #e2e8f0;
+    --btn-text: #0f172a;
+    --btn-hover-bg: #0f172a;
+    --btn-hover-text: #ffffff;
+    --reset-btn-bg: rgba(15, 23, 42, 0.08);
+    --reset-btn-hover-bg: rgba(15, 23, 42, 0.16);
+    --overlay-bg: rgba(226, 232, 240, 0.5);
+    --logo-white: #0f172a;
+    --title-gradient-end: #475569;
+    --logo-hover-color: #0f172a;
+    --img-border: rgba(15, 23, 42, 0.1);
+    --img-shadow: rgba(0, 0, 0, 0.1);
+    --scrollbar-track: rgba(226, 232, 240, 0.45);
+    --scrollbar-thumb: rgba(100, 116, 139, 0.4);
+    --scrollbar-thumb-hover: rgba(100, 116, 139, 0.6);
+
+    --modal-header-text: #0f172a;
+    --modal-header-overlay: linear-gradient(180deg, rgba(248, 250, 252, 0.05) 0%, rgba(248, 250, 252, 0.95) 100%);
+}
+
+theme-switch {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1100;
+    width: 44px;
+    height: 44px;
+    padding: 8px;
+    background: var(--stat-bg);
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    --theme-switch-icon-color: var(--text-main);
+    transition: all 0.3s ease;
+    cursor: pointer;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+theme-switch:hover {
+    transform: scale(1.05) translateY(-2px);
+    background: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+}
+
+@media (max-width: 700px) {
+    theme-switch {
+        top: auto;
+        bottom: calc(20px + env(safe-area-inset-bottom));
+        right: 20px;
+    }
+
+    /* Posun doľava, ak je viditeľná šípka na hlavnej stránke (iba ak nie je otvorený modal) */
+    body.has-scroll-top:not(.modal-active) theme-switch {
+        right: 74px;
+    }
+
+    /* Posun doľava, ak je viditeľná šípka v modálnom okne */
+    body.has-modal-scroll-top theme-switch {
+        right: 74px;
+    }
+}
+
 
 body {
     font-family: 'Plus Jakarta Sans', sans-serif;
@@ -639,33 +722,42 @@ h1 {
     z-index: 999;
 }
 
-/* Zjednotený štýl pre všetky akčné okrúhle tlačidlá */
+/* Zjednotený štýl pre všetky akčné okrúhle tlačidlá (vrátane prepínača tém) */
 .modal-close-btn,
 .modal-scroll-top,
-.page-scroll-top {
+.page-scroll-top,
+theme-switch {
     width: 44px;
     height: 44px;
-    border: none;
+    border: 1px solid var(--border);
     border-radius: 50%;
-    background: var(--icon-bg);
+    background: var(--stat-bg);
     color: var(--text-main);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
-    display: grid;
-    place-items: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     cursor: pointer;
     box-shadow: 0 12px 25px rgba(0, 0, 0, 0.2);
-    transition: transform 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease, visibility 0.2s ease;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     padding: 0;
+    box-sizing: border-box;
     font-family: inherit;
     line-height: 1;
 }
 
+theme-switch {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1100;
+    padding: 8px;
+    --theme-switch-icon-color: var(--text-main);
+}
+
 .modal-close-btn {
     font-size: 2rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
     padding-bottom: 10px;
 }
 
@@ -677,10 +769,29 @@ h1 {
 
 .modal-close-btn:hover,
 .modal-scroll-top:hover,
-.page-scroll-top:hover {
+.page-scroll-top:hover,
+theme-switch:hover {
     transform: scale(1.05) translateY(-2px);
     background: rgba(255, 255, 255, 0.2);
     box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+}
+
+@media (max-width: 700px) {
+    theme-switch {
+        top: auto;
+        bottom: calc(20px + env(safe-area-inset-bottom));
+        right: 20px;
+    }
+
+    /* Posun doľava, ak je viditeľná šípka na hlavnej stránke (iba ak nie je otvorený modal) */
+    body.has-scroll-top:not(.modal-active) theme-switch {
+        right: 74px;
+    }
+
+    /* Posun doľava, ak je viditeľná šípka v modálnom okne */
+    body.has-modal-scroll-top theme-switch {
+        right: 74px;
+    }
 }
 
 .modal-scroll-top.visible,

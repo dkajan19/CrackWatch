@@ -278,6 +278,7 @@ function openGameModal(gameId) {
     document.getElementById('modalContentWrapper').classList.add('hidden');
     document.getElementById('popupModal').classList.remove('hidden');
     document.body.style.overflow = 'hidden';
+    document.body.classList.add('modal-active');
 
     // Pre-fill static data
     document.getElementById('modalTitle').textContent = game.title;
@@ -594,6 +595,8 @@ function closeModal(event) {
     if (event && event.target !== event.currentTarget) return;
     document.getElementById('popupModal').classList.add('hidden');
     document.body.style.overflow = '';
+    document.body.classList.remove('modal-active');
+    document.body.classList.remove('has-modal-scroll-top');
 
     // Stop YouTube video
     const youtubePlayer = document.getElementById('youtubePlayer');
@@ -626,8 +629,10 @@ function setupModalScrollButton() {
 
         if (scrollTop > threshold) {
             scrollBtn.classList.add('visible');
+            if (isMobile) document.body.classList.add('has-modal-scroll-top');
         } else {
             scrollBtn.classList.remove('visible');
+            if (isMobile) document.body.classList.remove('has-modal-scroll-top');
         }
     });
 }
@@ -639,8 +644,10 @@ function setupPageScrollButton() {
     window.addEventListener('scroll', () => {
         if (window.scrollY > 320) {
             pageBtn.classList.add('visible');
+            document.body.classList.add('has-scroll-top');
         } else {
             pageBtn.classList.remove('visible');
+            document.body.classList.remove('has-scroll-top');
         }
     });
 }
