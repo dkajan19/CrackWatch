@@ -40,7 +40,7 @@ async function init() {
         }
 
     } catch (err) {
-        document.getElementById('app').innerHTML = `<div class="no-results" style="padding:60px;text-align:center;color:#ef4444;">❌ Error loading data: ${err.message}</div>`;
+        document.getElementById('app').innerHTML = `<div class="no-results" style="padding:60px;text-align:center;color:var(--accent-uncracked);">❌ Error loading data: ${err.message}</div>`;
         return;
     }
     document.getElementById('app').innerHTML = `
@@ -656,6 +656,8 @@ function resetSearch() {
     filterGames();
     const resetBtn = document.getElementById('searchResetBtn');
     if (resetBtn) resetBtn.classList.remove('visible');
+    const searchIcon = document.querySelector('.search-icon');
+    if (searchIcon) searchIcon.classList.remove('hidden');
 }
 
 let filterTimeout = null;
@@ -667,9 +669,11 @@ function filterGames() {
     const searchInput = document.getElementById('gameSearch');
     const query = (searchInput ? searchInput.value : '').toLowerCase();
     const resetBtn = document.getElementById('searchResetBtn');
+    const searchIcon = document.querySelector('.search-icon');
 
     // Tlačidlo na reset (krížik) zobrazíme/skryjeme okamžite
     if (resetBtn) resetBtn.classList.toggle('visible', query.length > 0);
+    if (searchIcon) searchIcon.classList.toggle('hidden', query.length > 0);
 
     const sections = ['cracked', 'hypervisor', 'uncracked', 'upcoming'];
 
