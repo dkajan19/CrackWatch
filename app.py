@@ -54,7 +54,9 @@ def compute_badge(game):
                 return 'UPCOMING'
             rel = datetime.strptime(release_date_str, '%Y-%m-%d').date()
             diff = (rel - today).days
-            return f"UPCOMING D-{diff}" if diff >= 0 else "UPCOMING"
+            if diff <= 0:
+                return f"UNCRACKED D+{abs(diff)}"
+            return f"UPCOMING D-{diff}"
         if not release_date_str:
             return 'UNCRACKED'
         rel = datetime.strptime(release_date_str, '%Y-%m-%d').date()
@@ -88,13 +90,22 @@ def process_game(p):
         else:
             crack_date = p.get('release_date', 'TBA')
 
+    is_upcoming = p.get('status') == 'unreleased'
+    rel_date_str = p.get('release_date')
+    if is_upcoming and rel_date_str:
+        try:
+            if datetime.strptime(rel_date_str, '%Y-%m-%d').date() <= datetime.now().date():
+                is_upcoming = False
+        except Exception:
+            pass
+
     return {
         "id": p.get('id'),
         "title": p.get('title', 'Unknown Title'),
         "images": {"cover": img, "header": header_img},
         "status_info": {
             "is_cracked": p.get('status') == 'cracked',
-            "is_upcoming": p.get('status') == 'unreleased',
+            "is_upcoming": is_upcoming,
             "is_hypervisor": p.get('status') == 'hypervisor',
             "badge": compute_badge(p),
         },
