@@ -81,14 +81,16 @@ def process_game(p):
     elif not header_img:
         header_img = img
         
-    # Určenie crack_date s fallbackom na created_at (len pre hypervisor) alebo release_date
+    # Určenie crack_date s fallbackom na created_at (len pre hypervisor)
     crack_date = p.get('crack_date')
     if not crack_date:
         if p.get('status') == 'hypervisor':
             created_at = p.get('created_at', '')
             crack_date = created_at[:10] if created_at else p.get('release_date', 'TBA')
-        else:
+        elif p.get('status') == 'cracked':
             crack_date = p.get('release_date', 'TBA')
+        else:
+            crack_date = 'N/A'
 
     is_upcoming = p.get('status') == 'unreleased'
     rel_date_str = p.get('release_date')
