@@ -217,6 +217,8 @@ h1 {
     margin-bottom: 0;
     flex-wrap: wrap;
     overflow: hidden;
+    /* Priestor navyše hore, aby hover "lift" badgeov nebol orezaný (overflow: hidden) */
+    padding-top: 4px;
     max-height: 0;
     /* Skryté na začiatku */
     opacity: 0;
@@ -230,7 +232,7 @@ h1 {
 .stats-bar.visible {
     max-height: 500px;
     /* Dostatočná výška pre viacero riadkov badgeov na mobile */
-    margin-top: 10px;
+    margin-top: 6px;
     margin-bottom: 20px;
     opacity: 1;
 }
@@ -262,28 +264,53 @@ h1 {
     font-size: 0.9rem;
 }
 
+/* Clickable stat badges scroll to their section (DB is just a total, so it stays static) */
+.stat-item {
+    --stat-accent: var(--text-dim);
+}
+
+.stat-item.stat-clickable {
+    cursor: pointer;
+    transition: background 0.25s ease, border-color 0.25s ease, translate 0.25s ease;
+}
+
+.stat-item.stat-clickable:hover,
+.stat-item.stat-clickable:focus-visible {
+    /* Fallback for browsers without color-mix() */
+    background: var(--stat-bg);
+    background: color-mix(in srgb, var(--stat-accent) 18%, var(--stat-bg));
+    border-color: var(--stat-accent);
+    translate: 0 -2px;
+    outline: none;
+}
+
 /* Specific colors for stat bubbles */
 .stat-db {
-    border-left: 4px solid var(--text-dim);
+    --stat-accent: var(--text-dim);
+    border-left: 4px solid var(--stat-accent);
 }
 
 .stat-cracked {
-    border-left: 4px solid var(--accent-cracked);
+    --stat-accent: var(--accent-cracked);
+    border-left: 4px solid var(--stat-accent);
     color: var(--accent-cracked);
 }
 
 .stat-hypervisor {
-    border-left: 4px solid var(--accent-hypervisor);
+    --stat-accent: var(--accent-hypervisor);
+    border-left: 4px solid var(--stat-accent);
     color: var(--accent-hypervisor);
 }
 
 .stat-uncracked {
-    border-left: 4px solid var(--accent-uncracked);
+    --stat-accent: var(--accent-uncracked);
+    border-left: 4px solid var(--stat-accent);
     color: var(--accent-uncracked);
 }
 
 .stat-upcoming {
-    border-left: 4px solid var(--accent-upcoming);
+    --stat-accent: var(--accent-upcoming);
+    border-left: 4px solid var(--stat-accent);
     color: var(--accent-upcoming);
 }
 

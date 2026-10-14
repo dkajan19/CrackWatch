@@ -87,19 +87,29 @@ function updateStats() {
     const statsElement = document.getElementById('stats');
 
     const statsConfig = [
-        { label: 'DB', value: d.cracked.length + d.hypervisor.length + d.uncracked.length + d.upcoming.length, class: 'stat-db' },
-        { label: 'Cracked', value: d.cracked.length, class: 'stat-cracked' },
-        { label: 'Hypervisor', value: d.hypervisor.length, class: 'stat-hypervisor' },
-        { label: 'Uncracked', value: d.uncracked.length, class: 'stat-uncracked' },
-        { label: 'Upcoming', value: d.upcoming.length, class: 'stat-upcoming' }
+        { label: 'DB', value: d.cracked.length + d.hypervisor.length + d.uncracked.length + d.upcoming.length, class: 'stat-db', target: '' },
+        { label: 'Cracked', value: d.cracked.length, class: 'stat-cracked', target: 'sec-cracked' },
+        { label: 'Hypervisor', value: d.hypervisor.length, class: 'stat-hypervisor', target: 'sec-hypervisor' },
+        { label: 'Uncracked', value: d.uncracked.length, class: 'stat-uncracked', target: 'sec-uncracked' },
+        { label: 'Upcoming', value: d.upcoming.length, class: 'stat-upcoming', target: 'sec-upcoming' }
     ];
 
-    // Naplnenie HTML obsahu dynamicky
-    statsElement.innerHTML = statsConfig.map((stat, i) => `
-        <div class="stat-item ${stat.class}" style="animation-delay: ${0.1 + (i * 0.1)}s">
+    // Naplnenie HTML obsahu dynamicky (DB je len súčet, preto nie je klikateľný)
+    statsElement.innerHTML = statsConfig.map((stat, i) => {
+        const clickable = !!stat.target;
+        const linkAttrs = clickable
+            ? `role="button" tabindex="0" title="Go to ${stat.label}" ` +
+              `onclick="scrollToSection('${stat.target}')" ` +
+              `onkeydown="if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); scrollToSection('${stat.target}'); }"`
+            : '';
+        return `
+        <div class="stat-item ${stat.class}${clickable ? ' stat-clickable' : ''}"
+             style="animation-delay: ${0.1 + (i * 0.1)}s"
+             ${linkAttrs}>
             ${stat.label}: <b>${stat.value}</b>
         </div>
-    `).join('');
+    `;
+    }).join('');
 
     // Spustenie animácie v ďalšom frame
     requestAnimationFrame(() => {
@@ -654,6 +664,17 @@ function setupPageScrollButton() {
 
 function scrollPageTop() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function scrollToSection(sectionId) {
+    if (!sectionId) {
+        scrollPageTop();
+        return;
+    }
+    const target = document.getElementById(sectionId);
+    if (!target) return;
+    const top = target.getBoundingClientRect().top + window.scrollY - 24;
+    window.scrollTo({ top: Math.max(top, 0), behavior: 'smooth' });
 }
 
 function resetSearch() {
